@@ -2,7 +2,6 @@
 #include<time.h>
 #include<iostream>
 #include<stdlib.h>
-//#include<iostream>
 using namespace sf;
 
 
@@ -21,7 +20,7 @@ int main()
         case 1:
             rows = 9; 
             columns = 9;
-            mines = 10; //CHANGE BACK TO 10
+            mines = 10;
             break;
         case 2:
             rows =  16;
@@ -50,7 +49,7 @@ int main()
     int sgrid[rows+1][columns+1]; 
 
     Texture t; // loading in the tiles as the graphics for the game
-    t.loadFromFile("tiles/tiles.jpg");
+    t.loadFromFile("tiles.jpg");
     Sprite s(t);
 
  // Adjust the mine initialization based on the difficulty
@@ -71,8 +70,10 @@ int main()
                 grid[i][j] = 0; // No more mines beyond the required number
             }
         }
+
 //grid [1][1] = 9;
 //unflaggedmines = 1;
+//totalMines = 1;
  // calculating the number of mines around each cell
 
     for (int i = 1; i <= rows; i++)
@@ -90,91 +91,92 @@ int main()
             if (grid[i + 1][j + 1] == 9) n++;
             if (grid[i - 1][j - 1] == 9) n++;
             if (grid[i - 1][j + 1] == 9) n++;
-            if (grid[i + 1][j - 1] == 9) n;
+            if (grid[i + 1][j - 1] == 9) n++;
 
             grid[i][j] = n;
         }
 bool firstClick = true; // To ensure the first click is safe
-    bool gameOver = false;  // To track the game over state
-    bool minesRevealed = false;  // To track if mines are revealed
+bool gameOver = false;  // To track the game over state
+bool minesRevealed = false;  // To track if mines are revealed
 // while loop to get the current position of mouse
-    while (app.isOpen())
-    {
+    while (app.isOpen()){
         Vector2i pos = Mouse::getPosition(app);
         int x = pos.x / w;
         int y = pos.y / w;
 // while loop to process when a button to close window is closed or to reveal a cell that has been clicked
         Event e;
-        while (app.pollEvent(e))
-        
-        {
+        while (app.pollEvent(e)){
+
             if (e.type == Event::Closed)
                 app.close();
 
-
-
             if (e.type == Event::MouseButtonPressed) {
                 
-                if (e.type == Event::MouseButtonPressed && !gameOver) {
-                if (firstClick) {
-                    // Ensure the first click is safe
-                    while (grid[x][y] == 9) {
-                        // If the first click is on a mine, regenerate the grid until it's safe
-                        for (int i = 1; i <= rows; i++)
-                            for (int j = 1; j <= columns; j++) {
-                                sgrid[i][j] = 10;
-                                if ( totalMines < mines) {
-                                    if (rand() % 5 == 0) {
-                                        grid[i][j] = 9;
-                                        totalMines++;
-                                    } else {
-                                        grid[i][j] = 0;
-                                    }
-                                } else {
-                                    grid[i][j] = 0;
-           
-                                }
-                            }
-    for (int i = 1; i <= rows; i++)
-        for (int j = 1; j <= columns; j++){
-            int n = 0;
-            if (grid[i][j] == 9) continue;
-            if (grid[i + 1][j] == 9) n++;
-            if (grid[i][j + 1] == 9) n++;
-            if (grid[i - 1][j] == 9) n++;
-            if (grid[i][j - 1] == 9) n++;
-
-            if (grid[i + 1][j + 1] == 9) n++;
-            if (grid[i - 1][j - 1] == 9) n++;
-            if (grid[i - 1][j + 1] == 9) n++;
-            if (grid[i + 1][j - 1] == 9) n;
-
-            grid[i][j] = n;
-                    }
-                    firstClick = false;
-                    
-                }
-                }
                 //updates sgrid[x][y] to have what grid[x][y] has, "revealing" it
                 if (e.mouseButton.button == Mouse::Left) {
                     
                     sgrid[x][y] = grid[x][y];
-
                     //checks if user hit a mine
                     if (grid[x][y] == 9) {
 
-                        //reveals all squares
-                        for (int z = 0; z <= rows ; z++) {
-                            for (int v = 0; v <= columns; v++) {
-                                sgrid[z][v] = grid[z][v];
-                                //sleep(sf::milliseconds(100));
+                        //first click protection
+                        if (firstClick) {
+
+                            std::cout << "firstclick protection! \n";
+                            //have to regenerate grid
+                            totalMines = 0;
+                            for (int i = 1; i <= rows; i++){
+                                for (int j = 1; j <= columns; j++) {
+                                    sgrid[i][j] = 10;
+                                    if ( totalMines < mines) {
+                                        if (rand() % 5 == 0) {
+                                            grid[i][j] = 9;
+                                            totalMines++;
+                                        } 
+                                        else {
+                                            grid[i][j] = 0;
+                                        }
+                                    } 
+                                    else {
+                                        grid[i][j] = 0;
+            
+                                    }
+                                }
+                            }
+                            for (int i = 1; i <= rows; i++){
+                                for (int j = 1; j <= columns; j++){
+                                    int n = 0;
+                                    if (grid[i][j] == 9) continue;
+                                    if (grid[i + 1][j] == 9) n++;
+                                    if (grid[i][j + 1] == 9) n++;
+                                    if (grid[i - 1][j] == 9) n++;
+                                    if (grid[i][j - 1] == 9) n++;
+
+                                    if (grid[i + 1][j + 1] == 9) n++;
+                                    if (grid[i - 1][j - 1] == 9) n++;
+                                    if (grid[i - 1][j + 1] == 9) n++;
+                                    if (grid[i + 1][j - 1] == 9) n++;
+
+                                    grid[i][j] = n;
+                                }
+                                firstClick = false;
+                            }
+                        }
+                        else {
+                            //reveals all squares
+                            for (int z = 0; z <= rows ; z++) {
+                                for (int v = 0; v <= columns; v++) {
+                                    sgrid[z][v] = grid[z][v];
+                                    //sleep(sf::milliseconds(100));
+                                }
                             }
                         }
                     }
-
+                    else {
+                        firstClick = false;
+                    }
                 }
             
-
                 //flags square
                 else if (e.mouseButton.button == Mouse::Right) {
                     sgrid[x][y] = 11;
@@ -234,13 +236,12 @@ bool firstClick = true; // To ensure the first click is safe
                     //*/
                 }
             }
-            }
         }
 // clear window
         app.clear(Color::White);
 
         // Drawing the grid
-        for (int i = 1; i <= rows; i++)
+        for (int i = 1; i <= rows; i++){
             for (int j = 1; j <= columns; j++) {
                 if (sgrid[i][j] == 9) sgrid[i][j] = grid[i][j];
 
@@ -248,6 +249,7 @@ bool firstClick = true; // To ensure the first click is safe
                 s.setPosition(i * w, j * w);
                 app.draw(s);
             }
+        }
 // Display the app
         app.display();
     }
